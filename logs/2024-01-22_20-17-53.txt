@@ -1,0 +1,61 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 28 21.3M   28 6239k    0     0  19.2M      0  0:00:01 --:--:--  0:00:01 19.2M100 21.3M  100 21.3M    0     0  44.6M      0 --:--:-- --:--:-- --:--:-- 44.5M
+npm WARN deprecated node-pre-gyp@0.17.0: Please upgrade to @mapbox/node-pre-gyp: the non-scoped node-pre-gyp package is deprecated and only the @mapbox scoped package will recieve updates in the future
+
+added 67 packages, and audited 68 packages in 3s
+
+3 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm notice 
+npm notice New major version of npm available! 8.15.0 -> 10.3.0
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v10.3.0>
+npm notice Run `npm install -g npm@10.3.0` to update!
+npm notice 
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@discordjs/collection@2.0.0',
+npm WARN EBADENGINE   required: { node: '>=18' },
+npm WARN EBADENGINE   current: { node: 'v16.17.0', npm: '8.15.0' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@discordjs/collection@2.0.0',
+npm WARN EBADENGINE   required: { node: '>=18' },
+npm WARN EBADENGINE   current: { node: 'v16.17.0', npm: '8.15.0' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@sapphire/shapeshift@3.9.6',
+npm WARN EBADENGINE   required: { node: '>=v18' },
+npm WARN EBADENGINE   current: { node: 'v16.17.0', npm: '8.15.0' }
+npm WARN EBADENGINE }
+
+up to date, audited 28 packages in 400ms
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Zoe Helper#1273 is online.
+-----------------------------------------------------------------------------
+A thread has been created or the client user is added to an existing thread.
+ThreadID: 1199085800063766678
+OwnerID: 589773984447463434
+Title: rankroles test post
+Desc: .
+----------
+ConvText: rankroles test post .
+----------
+Trigger found: role
+Support | Parent channel correct
+-----------------------------------------------------------------------------
+A thread has been created or the client user is added to an existing thread.
+ThreadID: 1199086148702711808
+OwnerID: 589773984447463434
+Title: feedback test
+Desc: what if i put a trigger in here... Config
+----------
+ConvText: feedback test what if i put a trigger in here... config
+----------
+Trigger found: config
+Feedback | Parent channel correct

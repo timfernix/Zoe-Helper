@@ -1,0 +1,55 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 21.3M  100 21.3M    0     0  46.4M      0 --:--:-- --:--:-- --:--:-- 46.3M
+npm WARN deprecated node-pre-gyp@0.17.0: Please upgrade to @mapbox/node-pre-gyp: the non-scoped node-pre-gyp package is deprecated and only the @mapbox scoped package will recieve updates in the future
+
+added 67 packages, and audited 68 packages in 3s
+
+3 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm notice 
+npm notice New major version of npm available! 8.15.0 -> 10.3.0
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v10.3.0>
+npm notice Run `npm install -g npm@10.3.0` to update!
+npm notice 
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@discordjs/collection@2.0.0',
+npm WARN EBADENGINE   required: { node: '>=18' },
+npm WARN EBADENGINE   current: { node: 'v16.17.0', npm: '8.15.0' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@discordjs/collection@2.0.0',
+npm WARN EBADENGINE   required: { node: '>=18' },
+npm WARN EBADENGINE   current: { node: 'v16.17.0', npm: '8.15.0' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@sapphire/shapeshift@3.9.6',
+npm WARN EBADENGINE   required: { node: '>=v18' },
+npm WARN EBADENGINE   current: { node: 'v16.17.0', npm: '8.15.0' }
+npm WARN EBADENGINE }
+
+up to date, audited 28 packages in 393ms
+
+1 package is looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Zoe Helper#1273 is online.
+-----------------------------------------------------------------------------
+A thread has been created or the client user is added to an existing thread.
+ThreadID: 1199816140919144530
+OwnerID: 221399196480045056
+Title: Game events button
+node:events:491
+      throw er; // Unhandled 'error' event
+      ^
+
+TypeError: Cannot read properties of undefined (reading 'content')
+    at Client.<anonymous> (/home/minecraft/multicraft/servers/server648809/src/index.js:39:37)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+Emitted 'error' event on Client instance at:
+    at emitUnhandledRejectionOrErr (node:events:394:10)
+    at processTicksAndRejections (node:internal/process/task_queues:85:21)
