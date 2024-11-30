@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { REST, Routes } = require("discord.js");
-const { TOKEN, APPLICATION_ID, GUILD_ID } = process.env;
+const { TOKEN, CLIENT_ID, SERVERID } = process.env;
 const fs = require("node:fs");
 
 const commands = [];
@@ -23,7 +23,7 @@ const rest = new REST({ version: "10" }).setToken(TOKEN);
     );
 
     const data = await rest.put(
-      Routes.applicationCommands(APPLICATION_ID),
+      Routes.applicationCommands(CLIENT_ID),
       { body: commands }
     );
 
