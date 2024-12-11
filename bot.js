@@ -75,7 +75,7 @@ client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 
   client.user.setActivity({
-    name: "over the Server",
+    name: "over the Server | v2.1",
     type: ActivityType.Watching,
   });
 });
@@ -102,7 +102,6 @@ function createEmbed(title, description, extraFieldTitle, extraFieldValue) {
       iconURL:
         "https://cdn.discordapp.com/avatars/589773984447463434/bb159d2c8839d7d534132780c81b83f6.png?size=64",
     })
-    .setTimestamp();
 }
 
 client.on(Events.ThreadCreate, async (thread) => {
@@ -172,7 +171,7 @@ client.on(Events.ThreadCreate, async (thread) => {
             "Zoe Support | Post Review - Welcome!",
             "**Thank you <@" + threadOwner + "> for describing your problem.** \n Here you can review and check the details of your post while we work on it. We will notify you as soon as we can when we reply to you in person. \n\n *Please apologise for any possible waiting time.*\n\nYou can fix simple problems here: https://discord.com/channels/554578876811182082/583897341392584715\nCurrent problems are addressed here: https://discord.com/channels/554578876811182082/554579908270227456\nYou can also take a look at the FAQ: [FAQ](https://wiki.zoe-discord-bot.ch/en/faq)",
             ":satellite: __This might help you based on your post__",
-            "Messages about LP wins and losses of players are sent in the rankchannel. If they take some time to be sent, it may be because you have not switched on your discord presence. Placement games are not displayed in the ranked channel./n/n- [Rankchannel](https://wiki.zoe-discord-bot.ch/en/features/rankchannel)\n- [Rankchannel Filter](https://wiki.zoe-discord-bot.ch/en/Zoe-Configuration/Rankchannel/Rankchannel-Filter)"
+            "Messages about LP wins and losses of players are sent in the rankchannel. If they take some time to be sent, it may be because you have not switched on your discord presence. Placement games are not displayed in the ranked channel.\n\n- [Rankchannel](https://wiki.zoe-discord-bot.ch/en/features/rankchannel)\n- [Rankchannel Filter](https://wiki.zoe-discord-bot.ch/en/Zoe-Configuration/Rankchannel/Rankchannel-Filter)"
           );
         } else if (
           optionClashchannel.some((keyword) => content.includes(keyword))
