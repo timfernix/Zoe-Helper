@@ -1,8 +1,9 @@
 require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
+const { exec } = require('child_process');
 
-const { TOKEN, SERVERID, SUPPORT_CH_ID, FEEDBACK_CH_ID } = process.env;
+const { TOKEN, GUILD_ID, SUPPORT_CH_ID, FEEDBACK_CH_ID } = process.env;
 const {
   GatewayIntentBits,
   Client,
@@ -46,28 +47,66 @@ for (const file of commandFiles) {
     client.commands.set(command.data.name, command);
   } else {
     console.log(
-      `[WARNING] The command at ${filePath} is missing a required "data" of "execute" property.`
+      `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
     );
   }
 }
 
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = client.commands.get(interaction.commandName);
-
-  if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found`);
+exec('node deploy-commands.js', (error, stdout, stderr) => {
+  if (error) {
+    console.error(`Error executing deploy-commands.js: ${error}`);
     return;
   }
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.log(error);
-    await interaction.reply({
-      content: "There was an error while executing this command",
-      ephemeral: true,
-    });
+  if (stderr) {
+    console.error(`stderr: ${stderr}`);
+    return;
+  }
+  console.log(`stdout: ${stdout}`);
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (interaction.isChatInputCommand()) {
+    const command = client.commands.get(interaction.commandName);
+
+    if (!command) {
+      console.error(`No command matching ${interaction.commandName} was found`);
+      return;
+    }
+
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.log(error);
+      await interaction.reply({
+        content: 'There was an error while executing this command',
+        flags: 64,
+      });
+    }
+  } else if (interaction.isAutocomplete()) {
+    const command = client.commands.get(interaction.commandName);
+
+    if (!command) {
+      console.error(`No command matching ${interaction.commandName} was found`);
+      return;
+    }
+
+    try {
+      const input = interaction.options.getFocused();
+      if (!input || typeof input !== 'string' || input.length < 1) {
+        await interaction.respond([]);
+        return;
+      }
+
+      await command.autocomplete(interaction);
+    } catch (error) {
+      console.log(error);
+      await interaction.respond([
+        {
+          name: 'There was an error while processing this autocomplete request',
+          value: 'error',
+        },
+      ]);
+    }
   }
 });
 
@@ -80,36 +119,28 @@ client.once(Events.ClientReady, (c) => {
   });
 });
 
-function createEmbed(title, description) {
-  return new EmbedBuilder()
-    .setColor("#0099ff")
-    .setTitle(title)
-    .setDescription(description)
-    .setTimestamp();
-}
-
 function createEmbed(title, description, extraFieldTitle, extraFieldValue) {
   return new EmbedBuilder()
-    .setColor(0xffea00)
+    .setColor(0xd2722f)
     .setTitle(title)
     .setDescription(description)
     .addFields({ name: extraFieldTitle, value: extraFieldValue, inline: true })
     .setThumbnail(
-      "https://cdn.discordapp.com/attachments/1179434091964285042/1198376353679020203/Zoe_1.jpg?ex=65beadf3&is=65ac38f3&hm=f659dab70ea493296c01da4e9cafb9cb5dbd909e80cb279cce0878636e143487&"
+      "https://cdn.discordapp.com/attachments/1179434091964285042/1198376353679020203/Zoe_1.jpg?ex=678a20b3&is=6788cf33&hm=4dd8a343cac7dbbd19fe2ba3ba6f28b06d4637513bf831d885d624bca3563c94&"
     )
     .setFooter({
       text: "Zoe Helper by @timfernix | This is an automatically generated message.",
       iconURL:
-        "https://cdn.discordapp.com/avatars/589773984447463434/bb159d2c8839d7d534132780c81b83f6.png?size=64",
+        "https://i.imgur.com/BmUvnFG.jpeg",
     })
 }
 
 client.on(Events.ThreadCreate, async (thread) => {
-  console.time('9 | Embed sent in')
+  console.time('10| DM sent after')
   console.log("----------");
   console.log(`1 | New thread created: ${thread.name} (${thread.id})`);
 
-  if (thread.guild.id !== SERVERID) {
+  if (thread.guild.id !== GUILD_ID) {
     console.log(`2 | ServerID doesnt match: ${thread.guild.id}`);
     return;
   } else {
@@ -124,10 +155,13 @@ client.on(Events.ThreadCreate, async (thread) => {
     console.log(`4 | Fetched ${messages.size} message(s) from thread ${thread.name} (${thread.id})`);
 
     if (messages.size === 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //1s delay
+      await new Promise((resolve) => setTimeout(resolve, 1000)); 
       timer = timer + 1;
       console.log(`5 | Looped ${timer} time(s)`);
       return checkMessages();
+    }
+    else {
+      console.log(`5 | Passed the loop`);
     }
 
     const firstMessage = messages.first();
@@ -141,7 +175,8 @@ client.on(Events.ThreadCreate, async (thread) => {
       if (!messageText) {
         console.log("7 | No message text");
       } else {
-        console.log(`7 | Message text: ${messageText}`);
+        let consoleText = messageText.length > 50 ? messageText.substring(0, 50) + "..." : messageText;
+        console.log(`7 | Message text: ${consoleText}`);
       }
 
       let threadOwner = thread.ownerId;
@@ -155,7 +190,6 @@ client.on(Events.ThreadCreate, async (thread) => {
         );
         console.log("8 | Channel correct: Support");
 
-        // Check for keywords
         let content = messageText.toLowerCase();
         if (optionInfochannel.some((keyword) => content.includes(keyword))) {
           embed = createEmbed(
@@ -262,13 +296,17 @@ client.on(Events.ThreadCreate, async (thread) => {
       if (embed) {
         try {
           await firstMessage.reply({ embeds: [embed] });
-          console.timeEnd('9 | Embed sent in')
+          console.log('9 | Embed sent')
         } catch (error) {
           console.error(`9 | Failed to send embed: ${error.message}`);
         }
       }
+      const timfernix = await client.users.fetch('589773984447463434');
+      await timfernix.send(`**__New thread created:__ ${thread.name}**\n__**Message:**__ ${threadMessage}\n__**Link:**__ https://discord.com/channels/${thread.guild.id}/${thread.id}`);
+      console.timeEnd('10| DM sent after')
+      console.log("----------");
     } catch (error) {
-      console.error("10 | Error fetching message:", error);
+      console.error("10| Error fetching message:", error);
     }
   };
   await checkMessages();
