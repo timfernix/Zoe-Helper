@@ -1,6 +1,6 @@
 # Zoe Helper
 
-Welcome to the Zoe Helper Bot repository! This bot is designed to enhance the support experience on the Zoe Discord Bot support server by automatically replying to posts with helpful tips and information.
+Welcome to the Zoe Helper Bot repository! This bot is designed to enhance the support experience on the Zoe Discord Bot support server by automatically replying to posts with helpful tips and information and handling some commands.
 
 ## Usage
 - Once the bot is running, it will monitor the support server for new posts in the forum channels.
