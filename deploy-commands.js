@@ -1,7 +1,13 @@
 require("dotenv").config();
 const { REST, Routes } = require("discord.js");
-const { TOKEN, CLIENT_ID, SERVERID } = process.env;
 const fs = require("node:fs");
+
+const { TOKEN, APPLICATION_ID, GUILD_ID } = process.env;
+
+if (!TOKEN || !APPLICATION_ID || !GUILD_ID) {
+  console.error("Missing required environment variables. Please check your .env file.");
+  process.exit(1);
+}
 
 const commands = [];
 
@@ -11,7 +17,11 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
-  commands.push(command.data.toJSON());
+  if (command.data && typeof command.data.toJSON === 'function') {
+    commands.push(command.data.toJSON());
+  } else {
+    console.warn(`Command at ./commands/${file} is missing a valid "data" property.`);
+  }
 }
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
@@ -23,7 +33,7 @@ const rest = new REST({ version: "10" }).setToken(TOKEN);
     );
 
     const data = await rest.put(
-      Routes.applicationCommands(CLIENT_ID),
+      Routes.applicationCommands(APPLICATION_ID),
       { body: commands }
     );
 
