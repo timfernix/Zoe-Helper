@@ -171,7 +171,7 @@ client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 
   loadPostedGuids();
-  setInterval(fetchRSS, 10 * 60 * 10);
+  setInterval(fetchRSS, 10 * 60 * 500); //5 min
 
   client.user.setActivity({
     name: "over the Server | v2.4",
