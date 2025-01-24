@@ -2,8 +2,12 @@ require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
 const { exec } = require('child_process');
+const Parser = require('rss-parser');
+const parser = new Parser();
+let postedRSSmessages = new Set();
+const RSSfile = './data/rss.json';
 
-const { TOKEN, GUILD_ID, SUPPORT_CH_ID, FEEDBACK_CH_ID } = process.env;
+const { TOKEN, GUILD_ID, SUPPORT_CH_ID, FEEDBACK_CH_ID, TRANSLATION_CH_ID } = process.env;
 const {
   GatewayIntentBits,
   Client,
@@ -110,13 +114,70 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
+function loadPostedGuids() {
+  if (fs.existsSync(RSSfile)) {
+    try {
+      const data = fs.readFileSync(RSSfile, 'utf8');
+      postedRSSmessages = new Set(JSON.parse(data));
+      console.log(`Loaded ${postedRSSmessages.size} RSS messages from file.`);
+    } catch (err) {
+      console.error(`Failed to load RSS messages: ${err}`);
+      postedRSSmessages = new Set();
+    }
+  } else {
+    console.log('RSS file does not exist. Starting with an empty set.');
+    postedRSSmessages = new Set();
+  }
+}
+
+function savePostedGuids() {
+  try {
+    fs.writeFileSync(RSSfile, JSON.stringify([...postedRSSmessages], null, 2));
+    console.log(`Saved ${postedRSSmessages.size} RSS messages to file.`);
+  } catch (err) {
+    console.error(`Failed to save RSS messages: ${err}`);
+  }
+}
+
+async function fetchRSS() {
+  const feed = await parser.parseURL('https://translate.zoe-discord-bot.ch/exports/rss/zoe-discord-bot/zoe-discord-bot/');
+  const rsschannel = await client.channels.fetch(TRANSLATION_CH_ID);
+  feed.items.forEach(item => {
+    const pubDate = new Date(item.pubDate).toISOString();
+    if (!postedRSSmessages.has(pubDate)) {
+      postedRSSmessages.add(pubDate);
+      savePostedGuids();
+
+      const creatorRegex = /<a href="\/user\/([^"]+)" .*?>([^<]+)<\/a>/i;
+      const match = item.creator ? item.creator.match(creatorRegex) : null;
+      let authorLink = 'System';
+      if (match && match[1]) {
+        authorLink = `[${match[2]}](https://translate.zoe-discord-bot.ch/user/${match[1]})`;
+      }
+      let rssID = item.guid.split('=').pop();
+      const embed = new EmbedBuilder()
+        .setAuthor({ name: 'Zoe Translation - Weblate', iconURL: 'https://pbs.twimg.com/profile_images/1140722234543222784/azsIQqB5_400x400.png', url: 'https://translate.zoe-discord-bot.ch/' })
+        .setTitle(item.title || 'Weblate activity')
+        .setDescription(`**Author:** ${authorLink}\n**String:** [${rssID}](${item.guid})\n\n${item.contentSnippet || 'No description'}`)
+        .setTimestamp(new Date(item.pubDate))
+        .setFooter({ text: `Zoe Helper by @timfernix | Changed `});
+
+      rsschannel.send({ embeds: [embed] });
+    }
+  });
+}
+
 client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 
+  loadPostedGuids();
+  setInterval(fetchRSS, 10 * 60 * 10);
+
   client.user.setActivity({
-    name: "over the Server | v2.1",
+    name: "over the Server | v2.4",
     type: ActivityType.Watching,
   });
+
 });
 
 function createEmbed(title, description, extraFieldTitle, extraFieldValue) {
