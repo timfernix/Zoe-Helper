@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { SUPPORT_CH_ID, FEEDBACK_CH_ID, RESOLVED_TAG, MODERATOR_ROLE } = process.env;
+const { SUPPORT_CH_ID, FEEDBACK_CH_ID, RESOLVED_TAG, MODERATOR_ROLE, DEV_ROLE } = process.env;
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,7 +10,7 @@ module.exports = {
             return interaction.reply({ content: "This command can only be used in a thread.", flags: 64 });
         }
 
-        if (!interaction.member.roles.cache.has(MODERATOR_ROLE)) {
+        if (!interaction.member.roles.cache.has(MODERATOR_ROLE) && !interaction.member.roles.cache.has(DEV_ROLE)) {
             return interaction.reply({ content: "You do not have permission to use this command.", flags: 64 });
         }
 
