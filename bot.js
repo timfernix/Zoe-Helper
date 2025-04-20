@@ -7,16 +7,8 @@ const parser = new Parser();
 let postedRSSmessages = new Set();
 const RSSfile = "./data/rss.json";
 
-const { TOKEN, GUILD_ID, SUPPORT_CH_ID, FEEDBACK_CH_ID, TRANSLATION_CH_ID } =
-  process.env;
-const {
-  GatewayIntentBits,
-  Client,
-  Events,
-  Collection,
-  ActivityType,
-  EmbedBuilder,
-} = require("discord.js");
+const { TOKEN, GUILD_ID, SUPPORT_CH_ID, FEEDBACK_CH_ID, TRANSLATION_CH_ID, APPLICATION_ID } =  process.env;
+const { GatewayIntentBits, Client, Events, Collection, ActivityType, EmbedBuilder } = require("discord.js");
 
 const optionInfochannel = ["info", "panel", "card", "gameinfo", "gameoverview"];
 const optionRankchannel = ["rankchannel", "ranked", "lp"];
@@ -24,25 +16,9 @@ const optionClashchannel = ["clash", "clashchannel"];
 const optionLeaderboard = ["leaderboard"];
 const optionMatchhistorychannel = ["matchhistory", "history"];
 const optionRankrole = ["role", "rankrole"];
-const optionSubscription = [
-  "premium",
-  "subscription",
-  "benefit",
-  "kofi",
-  "boost",
-  "subscribe",
-  "point",
-];
-const optionRefresh = [
-  "refresh",
-  "update",
-  "updating",
-  "stopped",
-  "loading",
-  "lag",
-  "crash",
-];
-const optionError = ["error", "failed"];
+const optionSubscription = ["premium", "subscription", "benefit", "kofi", "boost", "subscribe", "point"];
+const optionRefresh = ["refresh", "update", "updating", "stopped", "loading", "lag", "crash", "bug"];
+const optionError = ["error", "failed", "problem"];
 const optionConfiguration = ["config", "setting"];
 
 const client = new Client({
@@ -157,52 +133,62 @@ function savePostedGuids() {
 }
 
 async function fetchRSS() {
-  const feed = await parser.parseURL(
-    "https://translate.zoe-discord-bot.ch/exports/rss/zoe-discord-bot/zoe-discord-bot/"
-  );
-  const rsschannel = await client.channels.fetch(TRANSLATION_CH_ID);
+  try {
+    const feed = await parser.parseURL(
+      "https://translate.zoe-discord-bot.ch/exports/rss/zoe-discord-bot/zoe-discord-bot/"
+    );
+    const rsschannel = await client.channels.fetch(TRANSLATION_CH_ID);
 
-  const oldestFirst = feed.items.reverse();
+    const oldestFirst = feed.items.reverse();
 
-  oldestFirst.forEach((item) => {
-    const pubDate = new Date(item.pubDate).toISOString();
-    if (!postedRSSmessages.has(pubDate)) {
-      postedRSSmessages.add(pubDate);
-      savePostedGuids();
+    oldestFirst.forEach((item) => {
+      const pubDate = new Date(item.pubDate).toISOString();
+      if (!postedRSSmessages.has(pubDate)) {
+        postedRSSmessages.add(pubDate);
+        savePostedGuids();
 
-      const creatorRegex = /<a href="\/user\/([^"]+)" .*?>([^<]+)<\/a>/i;
-      const match = item.creator ? item.creator.match(creatorRegex) : null;
-      let authorLink = "System";
-      if (match && match[1]) {
-        authorLink = `[${match[2]}](https://translate.zoe-discord-bot.ch/user/${match[1]})`;
+        const creatorRegex = /<a href="\/user\/([^"]+)" .*?>([^<]+)<\/a>/i;
+        const match = item.creator ? item.creator.match(creatorRegex) : null;
+        let authorLink = "System";
+        if (match && match[1]) {
+          authorLink = `[${match[2]}](https://translate.zoe-discord-bot.ch/user/${match[1]})`;
+        }
+
+        let rssID;
+        if (item.guid === "https://translate.zoe-discord-bot.ch/projects/zoe-discord-bot/zoe-discord-bot/") {
+          rssID = "Translation Changes";
+        } else {
+          rssID = item.guid.split("=").pop();
+        }
+        const embed = new EmbedBuilder()
+          .setAuthor({
+            name: "Zoe Translation - Weblate",
+            iconURL:
+              "https://pbs.twimg.com/profile_images/1140722234543222784/azsIQqB5_400x400.png",
+            url: "https://translate.zoe-discord-bot.ch/",
+          })
+          .setTitle(item.title || "Weblate activity")
+          .setDescription(
+            `**Author:** ${authorLink}\n**String:** [${rssID}](${item.guid})\n\n${
+              item.contentSnippet || "No description"
+            }`
+          )
+          .setTimestamp(new Date(item.pubDate))
+          .setFooter({ text: `Zoe Helper by timfernix | ` });
+
+        rsschannel.send({ embeds: [embed] });
       }
-      let rssID = item.guid.split("=").pop();
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: "Zoe Translation - Weblate",
-          iconURL:
-            "https://pbs.twimg.com/profile_images/1140722234543222784/azsIQqB5_400x400.png",
-          url: "https://translate.zoe-discord-bot.ch/",
-        })
-        .setTitle(item.title || "Weblate activity")
-        .setDescription(
-          `**Author:** ${authorLink}\n**String:** [${rssID}](${item.guid})\n\n${
-            item.contentSnippet || "No description"
-          }`
-        )
-        .setTimestamp(new Date(item.pubDate))
-        .setFooter({ text: `Zoe Helper by @timfernix | Changed ` });
-
-      rsschannel.send({ embeds: [embed] });
-    }
-  });
+    });
+  } catch (error) {
+    console.error("Failed to fetch RSS feed:", error);
+  }
 }
 
 client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 
   loadPostedGuids();
-  setInterval(fetchRSS, 10 * 60 * 500); //5 min
+  setInterval(fetchRSS, 10 * 60 * 1); //5 min
 
   client.user.setActivity({
     name: "over the Server | v2.4",
@@ -273,7 +259,19 @@ client.on(Events.ThreadCreate, async (thread) => {
         console.log(`7 | Message text: ${consoleText}`);
       }
 
-      let threadOwner = thread.ownerId;
+      let threadOwner;
+      if (thread.ownerId === APPLICATION_ID) {
+          const message = await thread.fetchStarterMessage();
+          const mention = message.content.match(/^<@!?(\d+)>/);
+          if (mention) {
+              threadOwner = mention[1];
+          } else {
+              threadOwner = thread.ownerId;
+          }
+      } else {
+          threadOwner = thread.ownerId;
+      }
+  
       let embed;
       if (thread.parentId === SUPPORT_CH_ID) {
         const supportTitle = "Zoe Support | Post Review - Welcome!";
@@ -281,7 +279,7 @@ client.on(Events.ThreadCreate, async (thread) => {
         const supportExtraFieldTitle =":satellite: __This might help you based on your post__";
 
         embed = createEmbed(supportTitle,supportDescription,supportExtraFieldTitle,
-          "*No keywords found* - You can check the [Zoe Wiki](<https://wiki.zoe-discord-bot.ch>) nevertheless."
+          "*No keywords found* - You can always have a look at the [Zoe Wiki](<https://wiki.zoe-discord-bot.ch>)."
         );
         console.log("8 | Channel correct: Support");
 
