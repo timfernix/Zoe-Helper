@@ -155,7 +155,7 @@ async function fetchRSS() {
         }
 
         let rssID;
-        if (item.guid === "https://translate.zoe-discord-bot.ch/projects/zoe-discord-bot/zoe-discord-bot/") {
+        if (item.guid.startsWith("https://translate.zoe-discord-bot.ch/projects/zoe-discord-bot/zoe-discord-bot/")) {
           rssID = "Translation Changes";
         } else {
           rssID = item.guid.split("=").pop();
